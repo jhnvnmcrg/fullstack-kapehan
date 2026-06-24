@@ -1,0 +1,26 @@
+CREATE TABLE public.shop_settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_name text NOT NULL DEFAULT 'KAPEHAN',
+  tagline text NOT NULL DEFAULT 'Tara kape tayo',
+  address text NOT NULL DEFAULT '',
+  phone text NOT NULL DEFAULT '',
+  hours_mon_fri text NOT NULL DEFAULT '7:00 AM — 9:00 PM',
+  hours_sat text NOT NULL DEFAULT '8:00 AM — 10:00 PM',
+  hours_sun text NOT NULL DEFAULT '8:00 AM — 6:00 PM',
+  is_singleton boolean NOT NULL DEFAULT true UNIQUE,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+GRANT SELECT ON public.shop_settings TO anon, authenticated;
+GRANT ALL ON public.shop_settings TO service_role;
+
+ALTER TABLE public.shop_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY shop_settings_public_read ON public.shop_settings FOR SELECT USING (true);
+
+CREATE TRIGGER shop_settings_set_updated_at
+  BEFORE UPDATE ON public.shop_settings
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+INSERT INTO public.shop_settings (address, phone) VALUES ('42 Calle Real, Poblacion, Makati', '+63 917 555 2042');
